@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Face Detection & Expression Detection with face-api.js</title>
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* hidden but available for debugging */
+        video, canvas, #expression {
+            opacity:0;
+        }
+
+        .shown {
+            opacity:.5
+        }       
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            transition:background 150ms;
+            background:#000;            
+            transition: background-color 350ms;
+        }
+
+        body:after {
+            position: absolute;
+            top:50%;
+            left:50%;
+            transform: translate3d(-50%, -50%, 0);
+            font-size:132px;            
+        }
+
+        /*
+            Possible expressions to detect:
+                'neutral' 
+                'happy' 
+                'sad' 
+                'angry' 
+                'fearful' 
+                'disgusted' 
+                'surprised'
+        */
+
+        body.neutral {
+            background:#aaa;            
+        }        
+        
+        body.neutral:after {
+            content: "😐"
+        }        
+
+        body.happy {
+            background:yellow;
+        }
+
+        body.happy:after {
+            content: "😃"
+        }
+
+        body.surprised {
+            background:#a0a;
+        }
+
+        body.surprised:after {
+            content: "😮"
+        }
+
+        body.disgusted {
+            background:greenyellow;
+        }
+
+        body.disgusted:after {
+            content: "🤢"
+        }
+
+        body.sad {
+            background:dodgerblue;
+        }
+
+        body.sad:after {
+            content: "😔"
+        }
+
+        body.angry {
+            background:firebrick;
+        }
+
+        body.angry:after {
+            content: "😡"
+        }
+
+        body.fearful {
+            background:#fff;
+        }
+
+        body.fearful:after {
+            content: "😱"
+        }             
+    </style>
+</head>
+<body>
+    <!-- 
+        These items are necessary but rendered 
+        with `opacity:0` to be invisible. Pressing
+        the Space key will reveal them to help test/debug
+    -->
+    <h1 id='expression'>&nbsp;</h1>
+    <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
+    <canvas id="overlay" />
+
+    <!-- 
+        This is the audio file it plays when a "sad"
+        expression is detected. Found in the public domain
+        on Archive.org:
+        
+        https://archive.org/details/78_what-can-i-do-to-make-you-happy_charles-dickson-gordon-eddy_gbia0086082b
+
+        If you're testing things locally it's probably better
+        to download it once and serve locally.
+    -->
+    
+    <audio id="cheerUp" src="https://ia800707.us.archive.org/6/items/78_what-can-i-do-to-make-you-happy_charles-dickson-gordon-eddy_gbia0086082b/What%20Can%20I%20Do%20to%20Make%20You%20Happy%20-%20Charles%20Dickson.mp3"></audio>
+    
+    <script src="dist/face-api.min.js"></script>
+    <script>     
+        const video = document.getElementById('inputVideo')
+        const cheerUp = document.getElementById('cheerUp') 
+    
+        async function run() {
+            // load the models
+            console.log("loading models...")            
+            await faceapi.nets.ssdMobilenetv1.load('weights')
+            await faceapi.nets.faceExpressionNet.load('weights')            
+            await faceapi.loadFaceRecognitionModel('weights')            
+            const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
+            
+            video.srcObject = stream
+        }
+
+        async function onPlay() {
+            // Wait until the models are loaded            
+            if (!isFaceDetectionModelLoaded()) return setTimeout(() => onPlay())
+            
+            const options = new faceapi.SsdMobilenetv1Options({ minConfidence: .5 }) //mino confidence            
+            const ts = Date.now()            
+            const result = await faceapi.detectSingleFace(video, options).withFaceExpressions()
+            
+            if (result) {              
+                result.expressions.forEach((expression) => {                    
+                    if (Math.round(expression.probability) == 1) {
+                        console.log(expression.expression, Math.round(expression.probability))
+                        document.querySelector('body').className = expression.expression
+                        document.querySelector('#expression').textContent = expression.expression
+                            
+                        if (expression.expression === 'sad' && cheerUp.paused === true) {                        
+                            cheerUp.play();
+                        }
+
+                        if (expression.expression === 'angry' && cheerUp.paused === false) {
+                            cheerUp.pause();  
+                            cheerUp.currentTime = 0;
+                        }                    
+                    }
+                    
+                })                
+            }
+
+            window.requestAnimationFrame(onPlay);                       
+        }
+
+        
+        function isFaceDetectionModelLoaded() {
+            return !!faceapi.nets.ssdMobilenetv1.params
+        }
+
+        // Press space to reveal video stream and currently
+        // perceived expression for debugging/testing. Also
+        // press Escape to cancel audio in case demo is going
+        // off the rails.
+        document.addEventListener('keypress', (event) => {
+            switch (event.code) {
+                case "Space":
+                    if (video.classList.contains('shown')) {
+                        video.classList.remove('shown')
+                        document.querySelector('#expression').classList.remove('shown')
+                    }else{
+                        video.classList.add('shown')
+                        document.querySelector('#expression').classList.add('shown')
+                    }
+                break;
+
+                case "Escape":
+                    if (cheerUp.paused === false) {
+                        cheerUp.pause();  
+                        cheerUp.currentTime = 0;
+                    }
+                break;
+            }        
+
+            event.preventDefault();
+        })         
+
+        // note: on mobile a user interaction
+        // is required to initiate getUserMedia().
+        run();
+
+    </script>
+</body>
+</html>

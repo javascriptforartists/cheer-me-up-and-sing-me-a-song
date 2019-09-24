@@ -1,0 +1,28 @@
+{
+  "name": "cheer-me-up-and-sing-me-a-song",
+  "version": "1.0.0",
+  "description": "A little project that sings you a song to cheer you up when you're blue.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/javascriptforartists/cheer-me-up-and-sing-me-a-song.git"
+  },
+  "keywords": [
+    "face-api.js",
+    "facial",
+    "recognition",
+    "art",
+    "fun"
+  ],
+  "author": "George Mandis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/javascriptforartists/cheer-me-up-and-sing-me-a-song/issues"
+  },
+  "homepage": "https://github.com/javascriptforartists/cheer-me-up-and-sing-me-a-song#readme",
+  "dependencies": {
+  }
+}
