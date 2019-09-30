@@ -1,6 +1,6 @@
 # Cheer Me Up & Sing Me A Song
 
-This projects use the [face-api.js](https://github.com/justadudewhohacks/face-api.js) project assess how you're feeling and sing you a song if you're feeling sad. Don't worry though—the page will stop the song immediately if it thinks you're angry about it.
+This project uses the [face-api.js](https://github.com/justadudewhohacks/face-api.js) project to assess how you're feeling and sing you a song if you're feeling sad. Don't worry though—the page will stop the song immediately if it thinks you're angry about it.
 
 [https://javascriptforartists.github.io/cheer-me-up-and-sing-me-a-song/](https://javascriptforartists.github.io/cheer-me-up-and-sing-me-a-song/)
 
