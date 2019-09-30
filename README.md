@@ -14,7 +14,7 @@ Then simply start a server from the cloned directory and open the `index.html` f
 
 If you're uncertain how or which way to serve the files locally I suggest the [http-server](https://github.com/http-party/http-server) project— a straightforward command-line http server.
 
-===  
-George Mandis  
+
+**George Mandis**  
 [george.mand.is](https://george.mand.is)  
 [javascriptforartists.com](https://javascriptforartists.com)
